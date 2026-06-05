@@ -87,6 +87,7 @@ def download(url, format_spec, output_dir='.', progress_hook=None):
         'no_warnings': True,
         'logger': _NullLogger(),
         'progress_hooks': [progress_hook] if progress_hook else [],
+        'concurrent_fragment_downloads': 5,
     }
 
     if has_ffmpeg and '+' in format_spec:
@@ -98,4 +99,11 @@ def download(url, format_spec, output_dir='.', progress_hook=None):
             ret = ydl.download([url])
             return ret == 0
     except Exception:
-        return False
+        # Retry sequentially if concurrent fragments gave 416
+        ydl_opts['concurrent_fragment_downloads'] = 1
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ret = ydl.download([url])
+                return ret == 0
+        except Exception:
+            return False
