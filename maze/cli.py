@@ -87,6 +87,7 @@ def main():
 
         format_spec = downloader.get_format_spec(resolution, mute, audio_only, downloader._has_ffmpeg())
 
+        ui.reset_peak()
         ui.console.print(f"\n[bold cyan]Downloading...[/]")
 
         progress = ui.create_progress()

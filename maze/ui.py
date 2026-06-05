@@ -7,16 +7,47 @@ from rich.progress import (
     BarColumn,
     DownloadColumn,
     Progress,
+    ProgressColumn,
     TextColumn,
     TimeRemainingColumn,
-    TransferSpeedColumn,
 )
+from rich.text import Text
 from rich.prompt import Prompt
 from rich.align import Align
 
 from .downloader import RES_LABELS
 
 console = Console()
+
+_peak_speed = [0.0]  # mutable for closure
+
+def _fmt_speed(bytes_per_sec):
+    if bytes_per_sec is None:
+        return "--.- MB/s"
+    mb = bytes_per_sec / 1_048_576
+    if mb >= 1:
+        return f"{mb:.1f} MB/s"
+    return f"{bytes_per_sec / 1024:.0f} KB/s"
+
+
+class SpeedMeterColumn(ProgressColumn):
+    min_width = 12
+
+    def render(self, task):
+        speed = task.speed
+        if speed is None:
+            return Text("--.- MB/s", style="dim")
+        _peak_speed[0] = max(_peak_speed[0], speed)
+        mb_s = speed / 1_048_576
+        if mb_s >= 10:
+            style = "bold green"
+        elif mb_s >= 3:
+            style = "bold yellow"
+        elif mb_s >= 1:
+            style = "bold cyan"
+        else:
+            style = "bold red"
+        return Text(f"{mb_s:.1f} MB/s", style=style)
 
 
 def _format_duration(seconds: Optional[int]) -> str:
@@ -116,14 +147,20 @@ def create_progress() -> Progress:
         "|",
         DownloadColumn(),
         "|",
-        TransferSpeedColumn(),
+        SpeedMeterColumn(),
         "|",
         TimeRemainingColumn(),
         console=console,
     )
 
 
+def reset_peak():
+    _peak_speed[0] = 0.0
+
+
 def show_done(message: str = "Download complete!"):
+    if _peak_speed[0]:
+        message += f" [dim](peak: {_fmt_speed(_peak_speed[0])})[/]"
     console.print(f"\n[bold green]OK[/] {message}")
 
 
