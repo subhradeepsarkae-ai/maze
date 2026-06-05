@@ -1,0 +1,14 @@
+__pycache__/
+*.egg-info/
+*.pyc
+*.pyo
+*.mp4
+*.webm
+*.mkv
+*.m4a
+*.mp3
+*.part
+*.temp
+*.ytdl
+dist/
+build/
