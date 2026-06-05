@@ -33,7 +33,7 @@ def main():
         parser = argparse.ArgumentParser(
             prog='mz',
             description='Maze - Universal Video Downloader',
-            usage='mz <url> [options]    or    mz --clip [options]',
+            usage='mz <url> [--high | --fast] [--mute] [-o DIR]\n       mz --clip [--high | --fast] [--mute] [-o DIR]',
         )
         parser.add_argument('url', nargs='?', help='Video URL (YouTube, Instagram, TikTok, etc.)')
         parser.add_argument('--mute', action='store_true', help='Download video without audio track')

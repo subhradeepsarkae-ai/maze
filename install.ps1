@@ -1,28 +1,26 @@
 # Maze Universal Installer
-# Run: powershell -c "iwr -useb https://raw.githubusercontent.com/subhradeepsarkae-ai/maze/main/install.ps1 | iex"
+# Works in CMD and PowerShell.
+#
+# CMD:       curl -sL https://raw.githubusercontent.com/subhradeepsarkae-ai/maze/main/install.ps1 | powershell -command -
+# PowerShell: iwr -useb https://raw.githubusercontent.com/subhradeepsarkae-ai/maze/main/install.ps1 | iex
+# Direct:     pip install git+https://github.com/subhradeepsarkae-ai/maze.git
 
 $ErrorActionPreference = "Stop"
-$Host.UI.RawUI.ForegroundColor = "Yellow"
-Write-Host "=== Maze - Installing ==="
-$Host.UI.RawUI.ForegroundColor = "White"
+Write-Host "=== Maze - Installing ===" -ForegroundColor Yellow
 
 $python = Get-Command python -ErrorAction SilentlyContinue
 if (-not $python) {
     Write-Host "[ERROR] Python not found. Install Python 3.8+ from https://python.org" -ForegroundColor Red
     exit 1
 }
-
 Write-Host "[OK] Python found: $($python.Source)" -ForegroundColor Green
 
 python -m pip install --upgrade pip -q
-Write-Host "[OK] pip upgraded" -ForegroundColor Green
-
 python -m pip install git+https://github.com/subhradeepsarkae-ai/maze.git --upgrade -q
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[ERROR] Installation failed" -ForegroundColor Red
     exit 1
 }
-
 Write-Host "[OK] Maze installed" -ForegroundColor Green
 
 $aria2 = Get-Command aria2c -ErrorAction SilentlyContinue
@@ -36,10 +34,10 @@ if (-not $aria2) {
     }
 }
 
-$Host.UI.RawUI.ForegroundColor = "Green"
 Write-Host ""
 Write-Host "=== Maze is ready! ===" -ForegroundColor Green
 Write-Host "RESTART your terminal, then run:" -ForegroundColor White
 Write-Host "   mz https://youtube.com/watch?v=..." -ForegroundColor Cyan
 Write-Host "   mz https://instagram.com/p/..." -ForegroundColor Cyan
-Write-Host "   mz <url> --mute" -ForegroundColor Cyan
+Write-Host "   mz <url> --high --mute" -ForegroundColor Cyan
+Write-Host "   mz --clip --fast" -ForegroundColor Cyan
