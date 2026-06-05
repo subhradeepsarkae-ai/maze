@@ -92,6 +92,7 @@ def download(url, format_spec, output_dir='.', progress_hook=None):
 
     if has_ffmpeg and '+' in format_spec:
         ydl_opts['merge_output_format'] = 'mp4'
+        ydl_opts['postprocessor_args'] = {'ffmpeg': ['-c:a', 'aac', '-c:v', 'copy']}
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
