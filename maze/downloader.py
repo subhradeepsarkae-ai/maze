@@ -65,12 +65,12 @@ def get_format_spec(resolution=None, mute=False, audio_only=False, has_ffmpeg=Fa
         return 'bestaudio/best'
     if resolution is None:
         if mute:
-            return 'bestvideo/best'
+            return 'bestvideo[vcodec!=?av01]/bestvideo/best'
         if has_ffmpeg:
             return 'bestvideo+bestaudio/best'
         return 'best'
     if mute:
-        return f'bestvideo[height<={resolution}]'
+        return f'bestvideo[height<={resolution}][vcodec!=?av01]/bestvideo[height<={resolution}]'
     if has_ffmpeg:
         return f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]'
     return f'best[height<={resolution}]'
@@ -87,7 +87,6 @@ def download(url, format_spec, output_dir='.', progress_hook=None):
         'no_warnings': True,
         'logger': _NullLogger(),
         'progress_hooks': [progress_hook] if progress_hook else [],
-        'concurrent_fragment_downloads': 10,
     }
 
     if has_ffmpeg and '+' in format_spec:
