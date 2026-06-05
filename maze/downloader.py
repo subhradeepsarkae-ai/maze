@@ -29,6 +29,14 @@ def _has_ffmpeg() -> bool:
         return False
 
 
+def _has_aria2c() -> bool:
+    try:
+        subprocess.run(['aria2c', '--version'], capture_output=True, check=True)
+        return True
+    except (subprocess.SubprocessError, FileNotFoundError):
+        return False
+
+
 def fetch_info(url: str) -> dict:
     ydl_opts = {'quiet': True, 'no_warnings': True, 'logger': _NullLogger()}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -61,19 +69,26 @@ def fetch_info(url: str) -> dict:
 
 
 def get_format_spec(resolution=None, mute=False, audio_only=False):
+    has_ffmpeg = _has_ffmpeg()
+
     if audio_only:
         return 'bestaudio/best'
     if resolution is None:
         if mute:
             return 'bestvideo/best'
-        return 'bestvideo+bestaudio/best'
+        if has_ffmpeg:
+            return 'bestvideo+bestaudio/best'
+        return 'best'
     if mute:
         return f'bestvideo[height<={resolution}]'
-    return f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]'
+    if has_ffmpeg:
+        return f'bestvideo[height<={resolution}]+bestaudio/best[height<={resolution}]'
+    return f'best[height<={resolution}]'
 
 
 def download(url, format_spec, output_dir='.', progress_hook=None):
     has_ffmpeg = _has_ffmpeg()
+    has_aria2c = _has_aria2c()
     outtmpl = os.path.join(os.path.abspath(output_dir), '%(title)s.%(ext)s')
 
     ydl_opts = {
@@ -84,7 +99,15 @@ def download(url, format_spec, output_dir='.', progress_hook=None):
         'logger': _NullLogger(),
         'progress_hooks': [progress_hook] if progress_hook else [],
         'ignoreerrors': True,
+        'concurrent_fragment_downloads': 10,
     }
+
+    if has_aria2c:
+        ydl_opts['external_downloader'] = 'aria2c'
+        ydl_opts['external_downloader_args'] = [
+            '-x', '16', '-k', '1M', '--max-connection-per-server=16',
+            '--min-split-size', '1M', '--auto-file-renaming=false',
+        ]
 
     if has_ffmpeg and '+' in format_spec:
         ydl_opts['merge_output_format'] = 'mp4'
