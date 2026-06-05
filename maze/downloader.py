@@ -60,9 +60,7 @@ def fetch_info(url: str) -> dict:
     }
 
 
-def get_format_spec(resolution=None, mute=False, audio_only=False):
-    has_ffmpeg = _has_ffmpeg()
-
+def get_format_spec(resolution=None, mute=False, audio_only=False, has_ffmpeg=False):
     if audio_only:
         return 'bestaudio/best'
     if resolution is None:
@@ -89,7 +87,6 @@ def download(url, format_spec, output_dir='.', progress_hook=None):
         'no_warnings': True,
         'logger': _NullLogger(),
         'progress_hooks': [progress_hook] if progress_hook else [],
-        'ignoreerrors': True,
         'concurrent_fragment_downloads': 10,
     }
 

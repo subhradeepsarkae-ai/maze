@@ -37,7 +37,7 @@ def main():
 
         resolutions = info['resolutions']
         resolution, mute, audio_only = ui.parse_choice(choice, resolutions, args.mute)
-        format_spec = downloader.get_format_spec(resolution, mute, audio_only)
+        format_spec = downloader.get_format_spec(resolution, mute, audio_only, downloader._has_ffmpeg())
 
         ui.console.print(f"\n[bold cyan]Downloading...[/]")
 
