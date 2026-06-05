@@ -25,10 +25,21 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host "[OK] Maze installed" -ForegroundColor Green
 
+$aria2 = Get-Command aria2c -ErrorAction SilentlyContinue
+if (-not $aria2) {
+    Write-Host "[INFO] Installing aria2c for faster downloads..." -ForegroundColor Yellow
+    try {
+        winget install aria2.aria2 --accept-package-agreements | Out-Null
+        Write-Host "[OK] aria2c installed (restart terminal to use it)" -ForegroundColor Green
+    } catch {
+        Write-Host "[WARN] Could not install aria2c. Download manually: https://aria2.github.io" -ForegroundColor Yellow
+    }
+}
+
 $Host.UI.RawUI.ForegroundColor = "Green"
 Write-Host ""
 Write-Host "=== Maze is ready! ===" -ForegroundColor Green
-Write-Host "Open a NEW terminal and run:" -ForegroundColor White
+Write-Host "RESTART your terminal, then run:" -ForegroundColor White
 Write-Host "   mz https://youtube.com/watch?v=..." -ForegroundColor Cyan
 Write-Host "   mz https://instagram.com/p/..." -ForegroundColor Cyan
 Write-Host "   mz <url> --mute" -ForegroundColor Cyan
